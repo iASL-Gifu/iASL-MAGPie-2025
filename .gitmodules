@@ -18,3 +18,7 @@
 	path = sensors/vesc
 	url = https://github.com/ForzaETH/vesc.git
 	branch = foxy
+[submodule "localization/als_ros2"]
+	path = localization/als_ros2
+	url = https://github.com/iASL-Gifu/als_ros2.git
+	branch = main
