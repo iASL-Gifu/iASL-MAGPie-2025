@@ -1,6 +1,7 @@
 <?xml version="1.0"?>
 <launch>
     <arg name="mapping_bool" default="True"/>
+    <arg name="loc_algorithm" default="amcl" description="'slam' / 'amcl' to switch localisation algorithm" />
     <arg name="racecar_version" default="NUC2"/>
     <arg name="map_name" default="hangar" />
     <arg name="frenet_bool" default="False" />
@@ -16,38 +17,48 @@
     <arg name="slam_config_path" default="$(find-pkg-share stack_master)/config/$(var racecar_version)" />
     <let name="map_path" value="$(find-pkg-share stack_master)/maps/$(var map_name)" />
 
-    <!-- IF SLAM LOC ONLY -->
+    <!-- LOC ONLY -->
     <group unless="$(var mapping_bool)">
-        <!-- start cartographer SLAM LOCALIZATION -->
-        <node name="cartographer_node" pkg="cartographer_ros"
-            exec="cartographer_node"
-            args="
-            -configuration_directory $(var slam_config_path)
-            -configuration_basename f110_2d_loc.lua
-            -load_state_filename $(var map_path)/$(var map_name).pbstream
-            --minloglevel 2">
-            <remap from="odom" to="early_fusion/odom" />
-            <param name="use_sim_time" value="$(var use_sim_time)" />
-        </node>
+        <group if="$(eval &quot;'$(var loc_algorithm)'=='slam'&quot;)">
+            <!-- start cartographer SLAM LOCALIZATION -->
+            <node name="cartographer_node" pkg="cartographer_ros"
+                exec="cartographer_node"
+                args="
+                -configuration_directory $(var slam_config_path)
+                -configuration_basename f110_2d_loc.lua
+                -load_state_filename $(var map_path)/$(var map_name).pbstream
+                --minloglevel 2">
+                <remap from="odom" to="early_fusion/odom" />
+                <param name="use_sim_time" value="$(var use_sim_time)" />
+            </node>
 
-        <!-- Map as occ grid -->
-        <node name="cartographer_occupancy_grid_node" pkg="cartographer_ros" 
-            exec="cartographer_occupancy_grid_node" args="-resolution 0.05">
-            <param name="use_sim_time" value="$(var use_sim_time)" />
-        </node>
+            <!-- Map as occ grid -->
+            <node name="cartographer_occupancy_grid_node" pkg="cartographer_ros" 
+                exec="cartographer_occupancy_grid_node" args="-resolution 0.05">
+                <param name="use_sim_time" value="$(var use_sim_time)" />
+            </node>
+        </group>
 
-        <!-- Launch map server with regular map name reads from OG MAP-->
-        <node pkg="nav2_map_server" name="map_server" exec="map_server" output="screen">
-            <param name="yaml_filename" value="$(var map_path)/$(var map_name).yaml" />
-            <param name="use_sim_time" value="$(var use_sim_time)" />
-        </node>
-        <node pkg="nav2_lifecycle_manager" name="lifecycle_manager" exec="lifecycle_manager"
-            output="screen">
-            <param name="autostart" value="True" />
-            <param name="node_names" value="[map_server]" />
-            <param name="use_sim_time" value="$(var use_sim_time)" />
-        </node>
+        <group if="$(eval &quot;'$(var loc_algorithm)'=='amcl'&quot;)">
+            <!-- start als_ros2 LOCALIZATION -->
+            <include file="$(find-pkg-share als_ros2)/launch/mcl.launch.xml">
+            </include>
 
+            <!-- Launch map server with regular map name reads from OG MAP-->
+            <node pkg="nav2_map_server" name="map_server" exec="map_server" output="screen">
+                <param name="yaml_filename" value="$(var map_path)/$(var map_name).yaml" />
+                <param name="use_sim_time" value="$(var use_sim_time)" />
+            </node>
+            <node pkg="nav2_lifecycle_manager" name="lifecycle_manager" exec="lifecycle_manager"
+                output="screen">
+                <param name="autostart" value="True" />
+                <param name="node_names" value="[map_server]" />
+                <param name="use_sim_time" value="$(var use_sim_time)" />
+            </node>
+            <node pkg="map_repeater" name="map_repeater_node" exec="map_repeater_node" output="screen">
+                <param name="repeat_rate" value="1.0" />
+            </node>
+        </group>
     </group>
 
     <!-- ELIF SLAM MAPPING -->
