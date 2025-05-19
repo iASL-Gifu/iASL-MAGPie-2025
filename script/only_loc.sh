@@ -2,7 +2,7 @@
 
 # === デフォルト設定 ===
 LOC_ALGORITHM="slam"
-USE_SIM_TIME="false"
+USE_SIM_TIME="true"
 MAP_PATH="/home/jetson-orin/MAGPie/src/iASL-MAGPie-2025/stack_master/maps/gifu_univ_7th"
 MAP_NAME="gifu_univ_7th"
 LOC_CONFIG_PATH="/home/jetson-orin/MAGPie/src/iASL-MAGPie-2025/stack_master/config/NUC2/slam"
@@ -36,6 +36,7 @@ if [ "$LOC_ALGORITHM" = "slam" ]; then
     --minloglevel 2 \
     --ros-args \
     -r odom:=early_fusion/odom \
+    -r imu:=sensors/imu/raw \
     -p use_sim_time:=$USE_SIM_TIME \
     -r __node:=cartographer_node &
 
