@@ -14,4 +14,13 @@ else
     sensors/vesc \
     planner/global_planner/global_planner/global_racetrajectory_optimization \
     localization/als_ros2
+
+  # f1tenth_system の内部サブモジュールも初期化
+  cd base_system/f1tenth_system
+  git submodule update --init --recursive
+
+  # als_ros2を最新の状態に更新
+  cd ../..
+  cd localization/als_ros2
+  git pull origin main
 fi
