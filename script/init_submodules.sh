@@ -2,6 +2,8 @@
 
 MODE=$1  # "real" or "sim"
 
+cd /home/jetson-orin/MAGPie/src/iASL-MAGPie-2025
+
 if [ "$MODE" = "sim" ]; then
   echo "[INFO] Initializing all submodules (simulation mode)"
   git submodule update --init --recursive
