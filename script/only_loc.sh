@@ -1,11 +1,11 @@
 #!/bin/bash
 
 # === デフォルト設定 ===
-LOC_ALGORITHM="slam"         # デフォルトはslam
+LOC_ALGORITHM="slam"
 USE_SIM_TIME="false"
-MAP_PATH="/home/jetson-orin/MAGPie/maps"
-MAP_NAME="map2025_05_18"
-SLAM_CONFIG_PATH="/home/jetson-orin/MAGPie/install/cartographer_config/config"
+MAP_PATH="/home/jetson-orin/MAGPie/src/iASL-MAGPie-2025/stack_master/maps/gifu_univ_7th"
+MAP_NAME="gifu_univ_7th"
+LOC_CONFIG_PATH="/home/jetson-orin/MAGPie/src/iASL-MAGPie-2025/stack_master/config/NUC2/slam"
 
 # === 引数（1つ目）を loc_algorithm として受け取る ===
 if [ $# -ge 1 ]; then
@@ -15,16 +15,22 @@ fi
 # === Ctrl+Cで全ノードを停止する ===
 trap 'echo "[INFO] Stopping all..."; kill $(jobs -p); exit 0' SIGINT
 
-# === ROS2環境を準備 ===
-cd /home/jetson-orin/MAGPie
+# === ROS2環境のセットアップ ===
+cd /home/jetson-orin/MAGPie || { echo "[ERROR] MAGPie directory not found"; exit 1; }
 source install/setup.bash
+
+# --- Static TF publishers ---
+ros2 run tf2_ros static_transform_publisher 0.5 0.0 0.12 0.0 0.0 0.0 1.0 base_link laser &
+ros2 run tf2_ros static_transform_publisher 0.35 0.0 0.17 0.0 0.0 0.0 1.0 base_link camera &
+ros2 run tf2_ros static_transform_publisher 0.0 0.0 0.0 0.0 0.0 0.0 1.0 map odom &
+ros2 run tf2_ros static_transform_publisher 0.07 0.0 0.12 0.0 0.0 0.0 1.0 base_link imu &
 
 # === ローカライゼーションの起動 ===
 if [ "$LOC_ALGORITHM" = "slam" ]; then
   echo "[INFO] Starting Cartographer SLAM localization..."
 
   ros2 run cartographer_ros cartographer_node \
-    -configuration_directory "$SLAM_CONFIG_PATH" \
+    -configuration_directory "$LOC_CONFIG_PATH" \
     -configuration_basename "f110_2d_loc.lua" \
     -load_state_filename "$MAP_PATH/$MAP_NAME.pbstream" \
     --minloglevel 2 \
@@ -72,5 +78,5 @@ else
   exit 1
 fi
 
-# === ノードが終了するまで待機 ===
+# === 全ノードの終了を待機 ===
 wait
