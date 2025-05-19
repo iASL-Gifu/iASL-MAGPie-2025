@@ -3,7 +3,7 @@
 # Script to launch the main docker instance for the pblf110 car
 IMAGE=nuc_forzaeth_racestack_ros2 # for x86
 # IMAGE=jet_forzaeth_racestack_ros2 # for ARM
-FORZETH_DIR=~/iASL-MAGPie-2025
+FORZETH_DIR=~/works/iASL-MAGPie-2025
 
 docker run --tty \
   --interactive \

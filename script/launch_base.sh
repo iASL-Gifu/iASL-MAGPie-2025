@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # デフォルトのマップ名
-DEFAULT_MAP_NAME="gifu_univ_7th"
+DEFAULT_MAP_NAME="GLC_smile_small"
 
 # 引数が指定されていればそれを使用、なければデフォルトを使用
 MAP_NAME=${1:-$DEFAULT_MAP_NAME}
