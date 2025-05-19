@@ -2,8 +2,8 @@
 <launch>
   <arg name="racecar_version" default="NUC2" description="'SIM' / 'NUCx'" />
   <arg name="map_name" default="gifu_univ_7th" description="Map name in stack_master/maps" />
-  <arg name="sim" default="False" description="True/False if you want to run simulation" />
   <arg name="loc_algorithm" default="amcl" description="'slam' / 'amcl' to switch localisation algorithm" />
+  <arg name="sim" default="False" description="True/False if you want to run simulation" />
 
   <let name="sensors_config" value="$(find-pkg-share stack_master)/config/sensors.yaml" />
   <let name="mux_config" value="$(find-pkg-share stack_master)/config/mux.yaml" />
@@ -39,10 +39,11 @@
     <!-- launch SE -->
     <include file="$(find-pkg-share state_estimation)/launch/state_estimation_launch.xml">
       <arg name="racecar_version" value="$(var racecar_version)" />
-      <arg name="mapping_bool" value="False" />
       <arg name="map_name" value="$(var map_name)" />
-      <arg name="frenet_bool" value="True" />
       <arg name="loc_algorithm" value="$(var loc_algorithm)" />
+      <arg name="use_sim_time" value="$(var sim)" />
+      <arg name="mapping_bool" value="False" />
+      <arg name="frenet_bool" value="True" />
     </include>
   </group>
 

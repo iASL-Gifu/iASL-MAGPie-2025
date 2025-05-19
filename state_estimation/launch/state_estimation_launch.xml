@@ -1,12 +1,13 @@
 <?xml version="1.0"?>
 <launch>
-    <arg name="mapping_bool" default="True"/>
-    <arg name="loc_algorithm" default="amcl" description="'slam' / 'amcl' to switch localisation algorithm" />
     <arg name="racecar_version" default="NUC2"/>
     <arg name="map_name" default="hangar" />
-    <arg name="frenet_bool" default="False" />
-    <arg name="skip_early_fusion" default="False" />
+    <arg name="loc_algorithm" default="amcl" description="'slam' / 'amcl' to switch localisation algorithm" />
     <arg name="use_sim_time" default="False" />
+    <arg name="mapping_bool" default="True"/>
+    <arg name="frenet_bool" default="False" />
+
+    <arg name="skip_early_fusion" default="False" />
 
     <!-- EKF IMU + Odom Fusion -->
     <group unless="$(var skip_early_fusion)">
